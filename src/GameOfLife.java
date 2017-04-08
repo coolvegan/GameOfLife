@@ -1,103 +1,160 @@
-
 public class GameOfLife {
+	private 
+		String lebend = "*";
+		String gestorben = "x";
+		String  zwischenzustand = ".";
+		String[][] feldsrc, felddest;
+		int neighbours = 0;
+		int dimx, dimy;
+
+
+	GameOfLife(int dimx, int dimy)
+	{
+		this.dimx = dimx;
+		this.dimy = dimy;
+		initializeField();
+	}
+	
+	void noNeighbours() {
+		neighbours = 0;
+	}
+	
+	void generateDestinationField(int zeile, int spalte) 
+	{
+		if ((feldsrc[zeile][spalte] == lebend) && (neighbours < 2 ))
+		{
+			felddest[zeile][spalte] = gestorben;
+		}
+		
+		//lebt -> Überlebt
+		if ((feldsrc[zeile][spalte] == lebend) && ((neighbours == 3 ) || (neighbours == 4 )))
+		{
+			felddest[zeile][spalte] = lebend;	
+		}
+		
+		//lebt -> stirbt an übervölkerung
+		if ((feldsrc[zeile][spalte] == lebend) && (neighbours > 4 ))
+		{
+			felddest[zeile][spalte] = gestorben;	
+		}
+		//tot -> wird wiederbelebt
+		if ((feldsrc[zeile][spalte] == gestorben) && (neighbours == 3 ))
+		{
+			felddest[zeile][spalte] = lebend;	
+		}
+	}
+	
+	void calculateNeighbours(int zeile, int spalte) 
+	{
+		felddest[zeile][spalte] = feldsrc[zeile][spalte] ;
+		//teste links				
+			if ((spalte > 0) && (feldsrc[zeile][spalte-1]) == lebend)
+			{
+				neighbours++;
+			}
+		//teste rechts
+			if ((spalte < dimx-1) && (feldsrc[zeile][spalte+1]) == lebend)
+			{
+				neighbours++;	
+			}
+		//teste oben
+			if ((zeile > 0) && (feldsrc[zeile-1][spalte]) == lebend)
+			{
+				neighbours++;
+			}
+		//teste unten
+			if ((zeile < dimy-1) && (feldsrc[zeile+1][spalte]) == lebend)
+			{
+				neighbours++;
+			}					
+		//teste linksOben
+			if ((spalte > 0) && (zeile > 0) && (feldsrc[zeile-1][spalte-1]) == lebend)
+			{
+				neighbours++;
+			}		
+		//teste rechtsOben
+			if ((spalte < dimy-1) && (zeile > 0) && (feldsrc[zeile-1][spalte+1]) == lebend)
+			{
+				neighbours++;
+			}						
+		//teste linksUnten
+			if ((spalte > 0) && (zeile < dimy-1) && (feldsrc[zeile+1][spalte-1]) == lebend)
+			{
+				neighbours++;
+			}
+		//teste rechtsUnten
+			if ((spalte < dimx-1) && (zeile < dimy-1) && (feldsrc[zeile+1][spalte+1]) == lebend)
+			{
+				neighbours++;
+			}			
+	}
+	
+	void makeNextGenerationCurrentGeneration() 
+	{
+		feldsrc = felddest;
+	}
+	
+	void generateNextGeneration() 
+	{
+		initializeDestinationField();
+		for (int zeile = 0; zeile < dimy ; zeile++) 
+		{
+			for (int spalte = 0; spalte < dimx; spalte++)
+			{
+				noNeighbours();
+				calculateNeighbours(zeile, spalte);
+				generateDestinationField(zeile, spalte);
+			}
+		}
+		makeNextGenerationCurrentGeneration();
+	}
+	
+	void initializeSourceField()
+	{
+		feldsrc = new String[dimx][dimy];
+		for (int i = 0; i < dimy; i++) {
+			for (int j = 0; j < dimx; j++) {
+				feldsrc[j][i] = ".";
+			}
+		}
+	}
+	
+	void initializeDestinationField()
+	{
+		felddest = new String[dimx][dimy];
+		for (int i = 0; i < dimy; i++) {
+			for (int j = 0; j < dimx; j++) {
+				felddest[j][i] = ".";
+			}
+		}
+	}
+
+	void initializeField() {
+		initializeSourceField();
+		initializeDestinationField();	
+	}
+	
+	void printToconsole()
+	{
+		for (int i = 0; i < dimy; i++) {
+			for (int j = 0; j < dimx; j++) {
+				System.out.print(felddest[i][j]);
+			}	
+			System.out.print('\n');
+		}
+		System.out.print('\n');		
+	}
 
 	public static void main(String[] args) 
 	{
-		String lebend = "*";
-		String gestorben = "x";
-		
-		String[][] feld = {
-						   		{".", "*", "."},
-						   		{"x", "*", "x"},
-						   		{".", "*", "."},
-						   };
-		String[][] ziel;
+		GameOfLife gol = new GameOfLife(3,3);
+		String[][] testfeldSrc = new String[][]{{".", "*", "."}, {"x", "*", "x"},{".", "*", "."}};
+		gol.feldsrc = testfeldSrc;
 		int count = 0;
 		while(count < 10)
 		{
-			ziel = new String[3][3];
-			for (int zeile = 0; zeile < feld.length ; zeile++) 
-			{
-				for (int spalte = 0; spalte < feld[zeile].length ; spalte++)
-				{
-					int neighbours = 0;
-					//teste links
-						ziel[zeile][spalte] = feld[zeile][spalte] ;
-						
-						if ((spalte > 0) && (feld[zeile][spalte-1]) == lebend)
-						{
-							neighbours++;
-						}
-					//teste rechts
-						if ((spalte < feld[zeile].length-1) && (feld[zeile][spalte+1]) == lebend)
-						{
-							neighbours++;	
-						}
-					//teste oben
-						if ((zeile > 0) && (feld[zeile-1][spalte]) == lebend)
-						{
-							neighbours++;
-						}
-					//teste unten
-						if ((zeile < feld.length-1) && (feld[zeile+1][spalte]) == lebend)
-						{
-							neighbours++;
-						}					
-					//teste linksOben
-						if ((spalte > 0) && (zeile > 0) && (feld[zeile-1][spalte-1]) == lebend)
-						{
-							neighbours++;
-						}		
-					//teste rechtsOben
-						if ((spalte < feld[zeile].length-1) && (zeile > 0) && (feld[zeile-1][spalte+1]) == lebend)
-						{
-							neighbours++;
-						}						
-					//teste linksUnten
-						if ((spalte > 0) && (zeile < feld.length-1) && (feld[zeile+1][spalte-1]) == lebend)
-						{
-							neighbours++;
-						}
-
-					//teste rechtsUnten
-						if ((spalte < feld[zeile].length-1) && (zeile < feld.length-1) && (feld[zeile+1][spalte+1]) == lebend)
-						{
-							neighbours++;
-						}					
-						
-						if ((feld[zeile][spalte] == lebend) && (neighbours < 2 ))
-						{
-							ziel[zeile][spalte] = gestorben;
-						}
-						
-						//lebt -> Überlebt
-						if ((feld[zeile][spalte] == lebend) && ((neighbours == 3 ) || (neighbours == 4 )))
-						{
-							ziel[zeile][spalte] = lebend;	
-						}
-						
-						//lebt -> stirbt an übervölkerung
-						if ((feld[zeile][spalte] == lebend) && (neighbours > 4 ))
-						{
-							ziel[zeile][spalte] = gestorben;	
-						}
-						//tot -> wird wiederbelebt
-						if ((feld[zeile][spalte] == gestorben) && (neighbours == 3 ))
-						{
-							ziel[zeile][spalte] = lebend;	
-						}
-				}
-				
-			}
-			for (String[] element : ziel) {
-		
-				for (String element2 : element) {
-					System.out.print(element2);	
-				}
-				System.out.print('\n');
-			}
-			feld = ziel;
-			System.out.print('\n');
+			gol.generateNextGeneration();		
+			gol.printToconsole();
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
@@ -106,5 +163,4 @@ public class GameOfLife {
 			count++;
 		}
 	}
-
 }
